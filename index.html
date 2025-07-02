@@ -8,10 +8,10 @@
     <script src="https://unpkg.com/aframe@1.5.0/dist/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      body, #overlay, #fallback, #loader, #choose-model, #uitleg-btn, #insta-btn {
+      body {
+        margin: 0; overflow: hidden; background: #222;
         font-family: 'Source Code Pro', monospace !important;
       }
-      body { margin: 0; overflow: hidden; background: #222;}
       #overlay, #fallback, #loader, #ankerherkend {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         display: flex; align-items: center; justify-content: center;
@@ -22,21 +22,24 @@
         overflow: auto;
         max-width: 100vw;
         max-height: 100vh;
+        pointer-events: none;
       }
-      #overlay.hide, #fallback.hide, #loader.hide, #ankerherkend.hide { opacity: 0; pointer-events: none; }
+      #overlay.hide, #fallback.hide, #loader.hide, #ankerherkend.hide { opacity: 0; }
       #fallback { background: rgba(34,34,34,0.97); z-index: 14;}
       #loader { background: rgba(34,34,34,0.92); z-index: 20; font-size: 1.4em;}
       #ankerherkend { background: rgba(50,180,70,0.95); color: #fff; z-index: 30; font-size:2em;}
-      #lang-switch, #uitleg-btn {
-        position: absolute; top: 18px; right: 18px; background: #fff; color: #111;
+      #lang-switch, #uitleg-btn, #insta-btn {
+        position: fixed; top: 18px; background: #fff; color: #111;
         border: none; border-radius: 20px; padding: 7px 18px; font-size: 1em; font-weight: bold;
-        box-shadow: 0 2px 8px #0003; cursor: pointer; z-index: 40;
+        box-shadow: 0 2px 8px #0003; cursor: pointer; z-index: 100;
+        font-family: 'Source Code Pro', monospace !important;
       }
-      #uitleg-btn { right: auto; left: 18px; background: #f6f6f6; color: #1a1a1a; font-weight: 400;}
+      #lang-switch { right: 18px; }
+      #uitleg-btn { left: 18px; font-weight: 400; background: #f6f6f6; color: #1a1a1a;}
       #insta-btn {
-        position:absolute; bottom:24px; right:16px; padding:8px 18px; border-radius:20px; background:#fff;
-        color:#111; font-weight:600; text-decoration:none; box-shadow:0 2px 12px #0003; z-index:1000;
-        font-family:'Source Code Pro',monospace !important;
+        top: auto; bottom:24px; right:16px; padding:8px 18px; border-radius:20px; background:#fff;
+        color:#111; font-weight:600; text-decoration:none; box-shadow:0 2px 12px #0003;
+        font-size: 1em;
       }
       #choose-model {
         position:fixed; top:72px; right:16px; z-index:1001; display:flex; flex-direction:column; gap:8px;
@@ -50,16 +53,12 @@
         position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(30,30,30,0.94);
         color:#fff;z-index:50;display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-direction:column; padding:2em; opacity:0;pointer-events:none;transition:.5s;}
       #uitleg-overlay.show {opacity:1;pointer-events:auto;}
+      #fallback-content { width: 100%; }
+      #fallback-tip { display: block; margin-top: 1.2em; font-size: 0.96em; color: #ddd;}
       @media (max-width:600px), (max-height:700px) {
         #overlay,#fallback,#loader,#ankerherkend {
           font-size: 0.97em;
           padding: 0.7em;
-          width: 100vw;
-          height: 100vh;
-          max-width: 100vw;
-          max-height: 100vh;
-          box-sizing: border-box;
-          overflow: auto;
         }
         #choose-model {top: 54px;}
         #insta-btn, #uitleg-btn, #lang-switch {
@@ -74,9 +73,6 @@
     <div id="overlay">
       <span id="instruction-nl">Richt je camera op het ankerbeeld om het kunstwerk te zien</span>
       <span id="instruction-en" style="display:none;">Point your camera at the anchor image to see the artwork</span>
-      <button id="lang-switch">EN</button>
-      <button id="uitleg-btn">Uitleg</button>
-      <a href="https://instagram.com/ralfgloudemans" target="_blank" id="insta-btn">@ralfgloudemans</a>
     </div>
     <div id="uitleg-overlay">
       <div>
@@ -86,13 +82,21 @@
         <button onclick="document.getElementById('uitleg-overlay').classList.remove('show');" style="margin-top:1em;">Sluiten</button>
       </div>
     </div>
-    <div id="fallback" class="hide">Geen anker gevonden.<br>Richt je camera op het herkenningsbeeld of verplaats je iets dichterbij.</div>
+    <div id="fallback" class="hide">
+      <div id="fallback-content">
+        Geen anker gevonden.<br>Richt je camera op het herkenningsbeeld of verplaats je iets dichterbij.
+        <small id="fallback-tip"></small>
+      </div>
+    </div>
     <div id="loader">Laden...</div>
     <div id="ankerherkend" class="hide">Anker herkend!</div>
     <div id="choose-model" style="display:none;">
       <button onclick="switchModel('lamp')">Model 1</button>
       <!-- Voeg hier later knoppen toe voor extra modellen -->
     </div>
+    <button id="lang-switch">EN</button>
+    <button id="uitleg-btn">Uitleg</button>
+    <a href="https://instagram.com/ralf_gloudemans" target="_blank" id="insta-btn">@ralf_gloudemans</a>
     <a-scene
       mindar-image="imageTargetSrc: ./targets.mind;"
       color-space="sRGB"
@@ -143,11 +147,12 @@
       // Loader/fallback/anker feedback
       const overlay = document.getElementById('overlay');
       const fallback = document.getElementById('fallback');
+      const fallbackTip = document.getElementById('fallback-tip');
       const loader = document.getElementById('loader');
       const ankerherkend = document.getElementById('ankerherkend');
       const targetEntity = document.querySelector('#target-entity');
       const chooseModel = document.getElementById('choose-model');
-      let tracking = false, fallbackTimeout = null, ankerTimeout = null;
+      let tracking = false, fallbackTimeout = null, ankerTimeout = null, tipShown = false;
 
       // Model-switcher
       function switchModel(id) {
@@ -170,6 +175,8 @@
       document.querySelector('a-scene').addEventListener('targetFound', () => {
         overlay.classList.add('hide');
         fallback.classList.add('hide');
+        fallbackTip.textContent = "";
+        tipShown = false;
         tracking = true;
         if (fallbackTimeout) clearTimeout(fallbackTimeout);
         // Anker herkend animatie
@@ -186,10 +193,11 @@
         if (!tracking) fallback.classList.remove('hide');
       }, 8000);
 
-      // Performance cue: na 15s nog geen tracking? Toon extra tip
+      // Performance cue: na 15s nog geen tracking? Toon extra tip (onder tekst)
       setTimeout(()=>{
-        if (!tracking) {
-          fallback.innerHTML += "<br><small>Tip: Houd je camera stil en richt goed op het ankerbeeld.</small>";
+        if (!tracking && !tipShown) {
+          fallbackTip.textContent = "Tip: Houd je camera stil en richt goed op het ankerbeeld.";
+          tipShown = true;
         }
       }, 15000);
 
@@ -208,7 +216,6 @@
       });
 
       // Modelkiezer laten zien als er meer modellen zijn
-      // (Voorbeeld: laat 'chooseModel' zien zodra je extra glbs toevoegt)
       // chooseModel.style.display = 'flex';
     </script>
   </body>
