@@ -1,49 +1,44 @@
 <!DOCTYPE html>
 <html lang="nl">
   <head>
-    <title>WebAR Debug Veilig</title>
     <meta charset="utf-8">
+    <title>MindAR/A-Frame Test</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Eerst A-Frame, DAN MindAR, zonder defer -->
+    <!-- Eerst A-Frame, dan MindAR (volgorde is belangrijk!) -->
     <script src="https://unpkg.com/aframe@1.5.0/dist/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      body { margin:0; background:#222; font-family:Arial, sans-serif;}
-      #error, #loader {
+      body { margin:0; background:#222;}
+      #loader {
         position:fixed;left:0;top:0;width:100vw;height:100vh;
         display:flex;align-items:center;justify-content:center;
-        color:#fff;z-index:100;font-size:1.5em;background:rgba(44,44,44,0.95);
+        color:#fff;z-index:100;font-size:1.4em;background:rgba(44,44,44,0.85);
       }
-      #error {background:#b23c3c;}
-      #loader.hide, #error.hide {display:none;}
+      #loader.hide {display:none;}
     </style>
   </head>
   <body>
-    <div id="loader">Camera en AR worden geladen...</div>
-    <div id="error" class="hide">FOUT: A-Frame is niet geladen.<br>Controleer je internetverbinding of firewalls.<br>Of probeer een andere browser.</div>
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" embedded>
+    <div id="loader">AR wordt geladen…</div>
+    <a-scene
+      mindar-image="imageTargetSrc: ./targets.mind;"
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: true"
+      xr-mode-ui="enabled: false"
+      embedded
+    >
       <a-assets>
         <a-asset-item id="astronaut" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Astronaut/glTF-Binary/Astronaut.glb"></a-asset-item>
       </a-assets>
-      <a-camera></a-camera>
+      <a-camera position="0 0 0"></a-camera>
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-entity gltf-model="#astronaut" scale="0.2 0.2 0.2"></a-entity>
+        <a-entity gltf-model="#astronaut" scale="0.15 0.15 0.15"></a-entity>
       </a-entity>
     </a-scene>
     <script>
-      // Test na 1 seconde of AFRAME bestaat:
-      setTimeout(function(){
-        if (typeof AFRAME === 'undefined') {
-          document.getElementById('error').classList.remove('hide');
-        } else {
-          document.getElementById('error').classList.add('hide');
-        }
-      }, 1000);
-      // Loader verbergen zodra scene geladen is (of na 7s fallback)
-      setTimeout(function(){
-        document.getElementById('loader').classList.add('hide');
-      }, 7000);
-      document.querySelector('a-scene').addEventListener('loaded', function(){
+      setTimeout(() => { document.getElementById('loader').classList.add('hide'); }, 7000);
+      document.querySelector('a-scene').addEventListener('loaded', () => {
         document.getElementById('loader').classList.add('hide');
       });
     </script>
