@@ -72,7 +72,10 @@
       <span id="ankerherkend-en" style="display:none;">Anchor found!</span>
     </div>
     <button id="lang-switch">EN</button>
-    <button id="uitleg-btn">Uitleg</button>
+    <button id="uitleg-btn">
+      <span id="uitleg-btn-nl">Uitleg</span>
+      <span id="uitleg-btn-en" style="display:none;">Instructions</span>
+    </button>
     <a href="https://instagram.com/ralf_gloudemans" target="_blank" id="insta-btn">@ralf_gloudemans</a>
     <a-scene
       mindar-image="imageTargetSrc: ./targets.mind;"
@@ -110,6 +113,9 @@
         document.getElementById("uitleg-text-en").style.display = (currentLang === "en") ? "" : "none";
         document.getElementById("uitleg-sluit-nl").style.display = (currentLang === "nl") ? "" : "none";
         document.getElementById("uitleg-sluit-en").style.display = (currentLang === "en") ? "" : "none";
+        // Meertalige uitlegknop
+        document.getElementById("uitleg-btn-nl").style.display = (currentLang === "nl") ? "" : "none";
+        document.getElementById("uitleg-btn-en").style.display = (currentLang === "en") ? "" : "none";
       }
       document.getElementById('lang-switch').onclick = switchLang;
       document.getElementById('uitleg-btn').onclick = function() {
