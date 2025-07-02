@@ -1,180 +1,51 @@
 <!DOCTYPE html>
 <html lang="nl">
   <head>
-    <title>WebAR Kunstinstallatie</title>
+    <title>WebAR Debug Veilig</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <!-- LET OP: juiste volgorde van scripts! -->
+    <!-- Eerst A-Frame, DAN MindAR, zonder defer -->
     <script src="https://unpkg.com/aframe@1.5.0/dist/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      body { margin:0; overflow:hidden; background:#222; font-family:'Source Code Pro',monospace;}
-      #overlay, #fallback, #loader, #ankerherkend {
-        position:fixed;top:0;left:0;width:100vw;height:100vh;
+      body { margin:0; background:#222; font-family:Arial, sans-serif;}
+      #error, #loader {
+        position:fixed;left:0;top:0;width:100vw;height:100vh;
         display:flex;align-items:center;justify-content:center;
-        background:rgba(34,34,34,0.85);color:#fff;z-index:10;
-        font-size:1.3em;text-align:center;padding:2em;
-        transition:opacity 0.5s;box-sizing:border-box;overflow:auto;
-        max-width:100vw;max-height:100vh;pointer-events:none;
+        color:#fff;z-index:100;font-size:1.5em;background:rgba(44,44,44,0.95);
       }
-      #overlay.hide, #fallback.hide, #loader.hide, #ankerherkend.hide {opacity:0;}
-      #fallback {background:rgba(34,34,34,0.97);z-index:14;}
-      #loader {background:rgba(34,34,34,0.92);z-index:20;font-size:1.4em;}
-      #ankerherkend {background:rgba(50,180,70,0.95);color:#fff;z-index:30;font-size:2em;}
-      #lang-switch, #uitleg-btn, #insta-btn {
-        position:fixed;top:18px;background:#fff;color:#111;
-        border:none;border-radius:20px;padding:7px 18px;font-size:1em;font-weight:bold;
-        box-shadow:0 2px 8px #0003;cursor:pointer;z-index:100;
-        font-family:'Source Code Pro',monospace !important;
-        opacity:0.97;
-      }
-      #lang-switch { right:18px; }
-      #uitleg-btn { left:18px;font-weight:400;background:#f6f6f6;color:#1a1a1a;}
-      #insta-btn { top:auto;bottom:24px;right:16px;padding:8px 18px;border-radius:20px;background:#fff;
-        color:#111;font-weight:600;text-decoration:none;box-shadow:0 2px 12px #0003;font-size:1em;}
-      #uitleg-overlay {position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(30,30,30,0.94);
-        color:#fff;z-index:50;display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-direction:column;padding:2em;opacity:0;pointer-events:none;transition:.5s;}
-      #uitleg-overlay.show {opacity:1;pointer-events:auto;}
-      #fallback-content {width:100%;}
-      #fallback-tip {display:block;margin-top:1.2em;font-size:0.96em;color:#ddd;}
-      @media (max-width:600px), (max-height:700px) {
-        #overlay,#fallback,#loader,#ankerherkend {font-size:0.97em;padding:0.7em;}
-        #insta-btn, #uitleg-btn, #lang-switch {font-size:0.93em;padding:7px 10px;border-radius:15px;}
-      }
+      #error {background:#b23c3c;}
+      #loader.hide, #error.hide {display:none;}
     </style>
   </head>
   <body>
-    <div id="overlay">
-      <span id="text-instruct-nl">Richt je camera op het ankerbeeld om het kunstwerk te zien</span>
-      <span id="text-instruct-en" style="display:none;">Point your camera at the anchor image to see the artwork</span>
-    </div>
-    <div id="uitleg-overlay">
-      <div>
-        <b id="uitleg-titel-nl">Uitleg</b>
-        <b id="uitleg-titel-en" style="display:none;">Instructions</b><br><br>
-        <span id="uitleg-text-nl">Dit is een voorbeeldtekst. Hier kun je uitleg geven over het kunstwerk, de werking van AR, of iets anders.</span>
-        <span id="uitleg-text-en" style="display:none;">This is a sample text. Here you can explain the artwork, how AR works, or anything else.</span>
-        <br><br>
-        <button id="uitleg-sluit-nl" style="margin-top:1em;">Sluiten</button>
-        <button id="uitleg-sluit-en" style="margin-top:1em;display:none;">Close</button>
-      </div>
-    </div>
-    <div id="fallback" class="hide">
-      <div id="fallback-content">
-        <span id="fallback-text-nl">Geen anker gevonden.<br>Richt je camera op het herkenningsbeeld of verplaats je iets dichterbij.</span>
-        <span id="fallback-text-en" style="display:none;">No anchor found.<br>Point your camera at the anchor image or move closer.</span>
-        <small id="fallback-tip"></small>
-      </div>
-    </div>
-    <div id="loader">Laden...</div>
-    <div id="ankerherkend" class="hide">
-      <span id="ankerherkend-nl">Anker herkend!</span>
-      <span id="ankerherkend-en" style="display:none;">Anchor found!</span>
-    </div>
-    <button id="lang-switch">EN</button>
-    <button id="uitleg-btn">
-      <span id="uitleg-btn-nl">Uitleg</span>
-      <span id="uitleg-btn-en" style="display:none;">Instructions</span>
-    </button>
-    <a href="https://instagram.com/ralf_gloudemans" target="_blank" id="insta-btn">@ralf_gloudemans</a>
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" embedded color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: true"
-      xr-mode-ui="enabled: false">
+    <div id="loader">Camera en AR worden geladen...</div>
+    <div id="error" class="hide">FOUT: A-Frame is niet geladen.<br>Controleer je internetverbinding of firewalls.<br>Of probeer een andere browser.</div>
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" embedded>
       <a-assets>
-        <a-asset-item id="testmodel" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Astronaut/glTF-Binary/Astronaut.glb"></a-asset-item>
+        <a-asset-item id="astronaut" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Astronaut/glTF-Binary/Astronaut.glb"></a-asset-item>
       </a-assets>
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-      <a-entity mindar-image-target="targetIndex: 0" id="target-entity">
-        <a-entity gltf-model="#testmodel" scale="0.2 0.2 0.2" rotation="0 0 0" position="0 0 0" visible="true" id="artmodel"></a-entity>
-        <a-plane width="0.8" height="0.8" color="#000" opacity="0.18" rotation="-90 0 0" position="0 0 0"></a-plane>
+      <a-camera></a-camera>
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-entity gltf-model="#astronaut" scale="0.2 0.2 0.2"></a-entity>
       </a-entity>
     </a-scene>
     <script>
-      // Meertalige wissel
-      let currentLang = "nl";
-      function switchLang() {
-        currentLang = (currentLang === "nl") ? "en" : "nl";
-        document.getElementById("lang-switch").textContent = (currentLang === "nl") ? "EN" : "NL";
-        document.getElementById("text-instruct-nl").style.display = (currentLang === "nl") ? "" : "none";
-        document.getElementById("text-instruct-en").style.display = (currentLang === "en") ? "" : "none";
-        document.getElementById("fallback-text-nl").style.display = (currentLang === "nl") ? "" : "none";
-        document.getElementById("fallback-text-en").style.display = (currentLang === "en") ? "" : "none";
-        updateTip();
-        document.getElementById("ankerherkend-nl").style.display = (currentLang === "nl") ? "" : "none";
-        document.getElementById("ankerherkend-en").style.display = (currentLang === "en") ? "" : "none";
-        document.getElementById("uitleg-titel-nl").style.display = (currentLang === "nl") ? "" : "none";
-        document.getElementById("uitleg-titel-en").style.display = (currentLang === "en") ? "" : "none";
-        document.getElementById("uitleg-text-nl").style.display = (currentLang === "nl") ? "" : "none";
-        document.getElementById("uitleg-text-en").style.display = (currentLang === "en") ? "" : "none";
-        document.getElementById("uitleg-sluit-nl").style.display = (currentLang === "nl") ? "" : "none";
-        document.getElementById("uitleg-sluit-en").style.display = (currentLang === "en") ? "" : "none";
-        // Meertalige uitlegknop
-        document.getElementById("uitleg-btn-nl").style.display = (currentLang === "nl") ? "" : "none";
-        document.getElementById("uitleg-btn-en").style.display = (currentLang === "en") ? "" : "none";
-      }
-      document.getElementById('lang-switch').onclick = switchLang;
-      document.getElementById('uitleg-btn').onclick = function() {
-        document.getElementById('uitleg-overlay').classList.add('show');
-      };
-      document.getElementById('uitleg-sluit-nl').onclick = function() {
-        document.getElementById('uitleg-overlay').classList.remove('show');
-      };
-      document.getElementById('uitleg-sluit-en').onclick = function() {
-        document.getElementById('uitleg-overlay').classList.remove('show');
-      };
-      const overlay = document.getElementById('overlay');
-      const fallback = document.getElementById('fallback');
-      const fallbackTip = document.getElementById('fallback-tip');
-      const loader = document.getElementById('loader');
-      const ankerherkend = document.getElementById('ankerherkend');
-      let tracking = false, fallbackTimeout = null, tipShown = false;
-      let loaderShown = true;
-      function hideLoader() {
-        if (loaderShown) {
-          loader.classList.add('hide');
-          loaderShown = false;
+      // Test na 1 seconde of AFRAME bestaat:
+      setTimeout(function(){
+        if (typeof AFRAME === 'undefined') {
+          document.getElementById('error').classList.remove('hide');
+        } else {
+          document.getElementById('error').classList.add('hide');
         }
-      }
-      document.getElementById('artmodel').addEventListener('model-loaded', hideLoader);
-      setTimeout(hideLoader, 5000);
+      }, 1000);
+      // Loader verbergen zodra scene geladen is (of na 7s fallback)
+      setTimeout(function(){
+        document.getElementById('loader').classList.add('hide');
+      }, 7000);
       document.querySelector('a-scene').addEventListener('loaded', function(){
-        hideLoader();
+        document.getElementById('loader').classList.add('hide');
       });
-      document.querySelector('a-scene').addEventListener('targetFound', () => {
-        overlay.classList.add('hide');
-        fallback.classList.add('hide');
-        fallbackTip.textContent = "";
-        tipShown = false;
-        tracking = true;
-        if (fallbackTimeout) clearTimeout(fallbackTimeout);
-        ankerherkend.classList.remove('hide');
-        setTimeout(()=>{ ankerherkend.classList.add('hide'); }, 1800);
-      });
-      document.querySelector('a-scene').addEventListener('targetLost', () => {
-        tracking = false;
-        fallbackTimeout = setTimeout(() => {
-          if (!tracking) fallback.classList.remove('hide');
-        }, 8000);
-      });
-      setTimeout(() => {
-        if (!tracking) fallback.classList.remove('hide');
-      }, 8000);
-      function updateTip() {
-        fallbackTip.textContent = tipShown
-          ? (currentLang === "nl"
-              ? "Tip: Houd je camera stil en richt goed op het ankerbeeld."
-              : "Tip: Keep your camera steady and point at the anchor image.")
-          : "";
-      }
-      setTimeout(()=>{
-        if (!tracking && !tipShown) {
-          tipShown = true;
-          updateTip();
-        }
-      }, 15000);
     </script>
   </body>
 </html>
