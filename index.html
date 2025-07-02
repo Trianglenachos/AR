@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="nl">
   <head>
-    <title>WebAR Kunstinstallatie - TEST MODEL</title>
+    <title>WebAR Kunstinstallatie</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <!-- LET OP: juiste volgorde van scripts! -->
     <script src="https://unpkg.com/aframe@1.5.0/dist/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-aframe.prod.js"></script>
     <style>
@@ -77,15 +78,11 @@
       <span id="uitleg-btn-en" style="display:none;">Instructions</span>
     </button>
     <a href="https://instagram.com/ralf_gloudemans" target="_blank" id="insta-btn">@ralf_gloudemans</a>
-    <a-scene
-      mindar-image="imageTargetSrc: ./targets.mind;"
-      color-space="sRGB"
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" embedded color-space="sRGB"
       renderer="colorManagement: true, physicallyCorrectLights"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: true"
-      xr-mode-ui="enabled: false"
-      embedded
-    >
+      xr-mode-ui="enabled: false">
       <a-assets>
         <a-asset-item id="testmodel" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Astronaut/glTF-Binary/Astronaut.glb"></a-asset-item>
       </a-assets>
@@ -96,6 +93,7 @@
       </a-entity>
     </a-scene>
     <script>
+      // Meertalige wissel
       let currentLang = "nl";
       function switchLang() {
         currentLang = (currentLang === "nl") ? "en" : "nl";
@@ -142,6 +140,9 @@
       }
       document.getElementById('artmodel').addEventListener('model-loaded', hideLoader);
       setTimeout(hideLoader, 5000);
+      document.querySelector('a-scene').addEventListener('loaded', function(){
+        hideLoader();
+      });
       document.querySelector('a-scene').addEventListener('targetFound', () => {
         overlay.classList.add('hide');
         fallback.classList.add('hide');
